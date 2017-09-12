@@ -229,33 +229,32 @@ setTableColumnToSensibleDefault(tableData) {
     }
     else if (this.series && this.series.length > 1) {
       let formula = this.panel.calcFormula;
-      if (formula === null) {
+      if (formula === undefined || formula === null) {
         data.value = 0;
         data.valueRounded = 0;
         data.valueFormatted = 'Formula Required';
-        // throw error
       }
-      
-      if (this.panel.valueName === 'name') {
-        let error = new Error();
-        error.message = 'Unsupported Error';
-        error.data = 'Does not support name fields when calculating stats';
-        throw error;
+      else {
+        if (this.panel.valueName === 'name') {
+          let error = new Error();
+          error.message = 'Unsupported Error';
+          error.data = 'Does not support name fields when calculating stats';
+          throw error;
+        }
+
+        data.value = this.calculateDisplayValue(formula); 
+
+        let flotPairs = [];
+        this.calculatedFlotPairs(formula, flotPairs);
+        if (flotPairs != null && flotPairs.length > 0) {
+          data.flotpairs = flotPairs;
+        }
+
+        let decimalInfo = this.getDecimalsForValue(data.value);
+        let formatFunc = kbn.valueFormats[this.panel.format];
+        data.valueFormatted = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
+        data.valueRounded = kbn.roundValue(data.value, decimalInfo.decimals);
       }
-
-      data.value = this.calculateDisplayValue(formula); 
-
-      let flotPairs = [];
-      this.calculatedFlotPairs(formula, flotPairs);
-      if (flotPairs != null && flotPairs.length > 0) {
-        data.flotpairs = flotPairs;
-      }
-
-      let decimalInfo = this.getDecimalsForValue(data.value);
-      let formatFunc = kbn.valueFormats[this.panel.format];
-      data.valueFormatted = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
-      data.valueRounded = kbn.roundValue(data.value, decimalInfo.decimals);
-      
       // Add $__name variable for using in prefix or postfix
       data.scopedVars = _.extend({}, this.panel.scopedVars);
       data.scopedVars["__name"] = {value: this.series[0].label};

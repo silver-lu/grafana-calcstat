@@ -315,33 +315,31 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
               data.scopedVars["__name"] = { value: this.series[0].label };
             } else if (this.series && this.series.length > 1) {
               var formula = this.panel.calcFormula;
-              if (formula === null) {
+              if (formula === undefined || formula === null) {
                 data.value = 0;
                 data.valueRounded = 0;
                 data.valueFormatted = 'Formula Required';
-                // throw error
+              } else {
+                if (this.panel.valueName === 'name') {
+                  var error = new Error();
+                  error.message = 'Unsupported Error';
+                  error.data = 'Does not support name fields when calculating stats';
+                  throw error;
+                }
+
+                data.value = this.calculateDisplayValue(formula);
+
+                var flotPairs = [];
+                this.calculatedFlotPairs(formula, flotPairs);
+                if (flotPairs != null && flotPairs.length > 0) {
+                  data.flotpairs = flotPairs;
+                }
+
+                var _decimalInfo = this.getDecimalsForValue(data.value);
+                var _formatFunc = kbn.valueFormats[this.panel.format];
+                data.valueFormatted = _formatFunc(data.value, _decimalInfo.decimals, _decimalInfo.scaledDecimals);
+                data.valueRounded = kbn.roundValue(data.value, _decimalInfo.decimals);
               }
-
-              if (this.panel.valueName === 'name') {
-                var error = new Error();
-                error.message = 'Unsupported Error';
-                error.data = 'Does not support name fields when calculating stats';
-                throw error;
-              }
-
-              data.value = this.calculateDisplayValue(formula);
-
-              var flotPairs = [];
-              this.calculatedFlotPairs(formula, flotPairs);
-              if (flotPairs != null && flotPairs.length > 0) {
-                data.flotpairs = flotPairs;
-              }
-
-              var _decimalInfo = this.getDecimalsForValue(data.value);
-              var _formatFunc = kbn.valueFormats[this.panel.format];
-              data.valueFormatted = _formatFunc(data.value, _decimalInfo.decimals, _decimalInfo.scaledDecimals);
-              data.valueRounded = kbn.roundValue(data.value, _decimalInfo.decimals);
-
               // Add $__name variable for using in prefix or postfix
               data.scopedVars = _.extend({}, this.panel.scopedVars);
               data.scopedVars["__name"] = { value: this.series[0].label };
