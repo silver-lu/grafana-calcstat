@@ -740,12 +740,10 @@ function getColorForValue(data, value) {
 
 
 function calculate(formula, valueMap) {
-  console.log(formula);
   for ( var alias in valueMap ) {
     var re = new RegExp(alias, "g");
     formula = formula.replace(re, valueMap[alias]);
   }
-  console.log(formula);
   return eval(formula);
 }
 
