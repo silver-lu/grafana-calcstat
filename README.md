@@ -11,7 +11,7 @@ The CalcStat Panel's base code is shamelessly stolen from the SingleStat plugin 
 ![configure the formula](Configure_Calculation_Formula.png)
 
 ## Step 3: Calculated single stat
-![calculated single stat](Configure_Metrics.png)
+![calculated single stat](Calculated_Metrics.png)
 
 ## Disclaimer!
 * Majority of the code is a direct port of the SingleStat plugin provided by Grafana.
