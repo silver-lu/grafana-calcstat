@@ -743,8 +743,15 @@ function calculate(formula, valueMap) {
     var re = new RegExp(alias, "g");
     formula = formula.replace(re, valueMap[alias]);
   }
-  return eval(formula);
+  try {
+    return eval(formula);
+  }
+  catch (err) {
+    let error = new Error();
+    error.message = 'Calculation Error';
+    error.data = err.message;
+    throw error;
+  }
 }
-
 
 CalcStatCtrl.templateUrl = 'tpl/module.html';

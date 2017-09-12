@@ -49,7 +49,14 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
       var re = new RegExp(alias, "g");
       formula = formula.replace(re, valueMap[alias]);
     }
-    return eval(formula);
+    try {
+      return eval(formula);
+    } catch (err) {
+      var error = new Error();
+      error.message = 'Calculation Error';
+      error.data = err.message;
+      throw error;
+    }
   }
 
   return {
