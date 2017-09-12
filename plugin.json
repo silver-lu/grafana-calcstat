@@ -1,0 +1,17 @@
+{
+  "type": "panel",
+  "name": "calcStat",
+  "id": "calcstat",
+
+  "info": {
+    "author": {
+      "name": "Grafana Project",
+      "url": "https://grafana.com"
+},
+    "logos": {
+      "small": "img/icn-calcstat-panel.svg",
+      "large": "img/icn-calcstat-panel.svg"
+    }
+  }
+}
+
