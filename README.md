@@ -4,6 +4,14 @@ The CalcStat Panel is a modified version of the SingleStat plugin **included** w
 
 The CalcStat Panel's base code is shamelessly stolen from the SingleStat plugin included with Grafana. It supports the SingleStat functionality of displaying the one main summary stat of a SINGLE series, as well as providing the new ability of displaying the calculated summary stat of MULTIPLE series. It reduces the series into a single number the same way as SingleStat (by looking at the max, min, average, or sum of values in the series). CalcStat also support all current SingleStat features such as provides thresholds to color the stat or the Panel background, translate the single number into a text value, and show a sparkline summary of the series.
 
+** Step 1 **
+![configure the metrics](Configure_Metrics.png)
+
+** Step 1 **
+![configure the metrics](Configure_Calculation_Formula.png)
+
+** Step 3 **
+![calculated single stat](Configure_Metrics.png)
 
 **Disclaimer:** 
 * Majority of the code is a direct port of the SingleStat plugin provided by Grafana.
