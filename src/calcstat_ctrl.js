@@ -300,14 +300,11 @@ setTableColumnToSensibleDefault(tableData) {
   calculateDisplayValue(formula) {
     let map = {};
     for(let i=0; i < this.series.length; i++) {
-      if(this.series[i].datapoints === null || this.series[i].datapoints.length === 0) {
-        let error = new Error();
-        error.message = 'Data Error';
-        error.data = 'Data points missing for metrics ' + this.series[i].alias;
-        throw error;
+      let value = 0;
+      if (this.series[i].datapoints != null && this.series[i].datapoints.length != 0) {
+        value = this.series[i].stats[this.panel.valueName];
       }
 
-      let value = this.series[i].stats[this.panel.valueName];
       if (value === null || _.isString(value))  {
         let error = new Error();
         error.message = 'Data Error';
