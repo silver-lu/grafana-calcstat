@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/time_series2', 'app/core/config'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery.flot', 'jquery.flot.gauge', 'jquery', 'lodash', 'angular', 'app/core/utils/kbn', 'app/core/time_series2', 'app/core/config'], function (_export, _context) {
   "use strict";
 
-  var SingleStatCtrl, MetricsPanelCtrl, _, kbn, TimeSeries, config, _createClass, panelDefaults, CalcStatCtrl;
+  var MetricsPanelCtrl, $, _, angular, kbn, TimeSeries, config, _createClass, panelDefaults, CalcStatCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -60,12 +60,14 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
   }
 
   return {
-    setters: [function (_appPluginsPanelSinglestatModule) {
-      SingleStatCtrl = _appPluginsPanelSinglestatModule.SingleStatCtrl;
-    }, function (_appPluginsSdk) {
+    setters: [function (_appPluginsSdk) {
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
+    }, function (_jqueryFlot) {}, function (_jqueryFlotGauge) {}, function (_jquery) {
+      $ = _jquery.default;
     }, function (_lodash) {
       _ = _lodash.default;
+    }, function (_angular) {
+      angular = _angular.default;
     }, function (_appCoreUtilsKbn) {
       kbn = _appCoreUtilsKbn.default;
     }, function (_appCoreTime_series) {
@@ -107,6 +109,7 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
         mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
         rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
         mappingType: 1,
+        nullFiller: 0,
         nullPointMode: 'connected',
         valueName: 'avg',
         prefixFontSize: '50%',
@@ -159,6 +162,37 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
         _createClass(CalcStatCtrl, [{
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
+            var from = this.range.from.format("x");
+            var to = this.range.to.format("x");
+
+            for (var i = 0; i < dataList.length; i++) {
+              var interval = kbn.interval_to_seconds(this.panel.targets[0].period) * 1000;
+              if (dataList[i].datapoints.length != 0) {
+                var firstPoint = dataList[i].datapoints[0];
+                var lastPoint = dataList[i].datapoints[dataList[i].datapoints.length - 1];
+                var lookup = dataList[i].datapoints.reduce(function (map, point) {
+                  map[point[1]] = point[0];
+                  return map;
+                }, {});
+
+                var datapoints = [];
+                // work on before first point
+                for (var timestamp = firstPoint[1] - interval; timestamp > from - interval; timestamp -= interval) {
+                  datapoints.unshift([this.panel.nullFiller, timestamp]);
+                }
+
+                // work on filling in the gaps
+                for (var _timestamp = firstPoint[1]; _timestamp <= to - interval; _timestamp += interval) {
+                  if (lookup[_timestamp] != null) {
+                    datapoints.push([lookup[_timestamp], _timestamp]);
+                  } else {
+                    datapoints.push([this.panel.nullFiller, _timestamp]);
+                  }
+                }
+                dataList[i].datapoints = datapoints;
+              }
+            }
+
             var data = {};
             if (dataList.length > 0 && dataList[0].type === 'table') {
               this.dataType = 'table';
@@ -357,6 +391,7 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
         }, {
           key: 'calculatedFlotPairs',
           value: function calculatedFlotPairs(formula, flotPairs) {
+
             var longestMetricsLength = this.series[0].flotpairs.length;
             var longestMetricIndex = 0;
             for (var i = 1; i < this.series.length; i++) {
@@ -393,19 +428,16 @@ System.register(['app/plugins/panel/singlestat/module', 'app/plugins/sdk', 'loda
           value: function calculateDisplayValue(formula) {
             var map = {};
             for (var i = 0; i < this.series.length; i++) {
-              if (this.series[i].datapoints === null || this.series[i].datapoints.length === 0) {
-                var error = new Error();
-                error.message = 'Data Error';
-                error.data = 'Data points missing for metrics ' + this.series[i].alias;
-                throw error;
+              var value = 0;
+              if (this.series[i].datapoints != null && this.series[i].datapoints.length != 0) {
+                value = this.series[i].stats[this.panel.valueName];
               }
 
-              var value = this.series[i].stats[this.panel.valueName];
               if (value === null || _.isString(value)) {
-                var _error = new Error();
-                _error.message = 'Data Error';
-                _error.data = 'Data points is a string, cannot use in calculation ' + this.series[i].alias;
-                throw _error;;
+                var error = new Error();
+                error.message = 'Data Error';
+                error.data = 'Data points is a string, cannot use in calculation ' + this.series[i].alias;
+                throw error;;
               }
 
               var alias = this.series[i].alias === null ? 'pos-' + i : this.series[i].alias;

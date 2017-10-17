@@ -1,6 +1,10 @@
-import {SingleStatCtrl} from 'app/plugins/panel/singlestat/module';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
+import 'jquery.flot';
+import 'jquery.flot.gauge';
+
+import $ from 'jquery';
 import _ from 'lodash';
+import angular from 'angular';
 import kbn from 'app/core/utils/kbn';
 import TimeSeries from 'app/core/time_series2';
 import config from 'app/core/config';
@@ -29,6 +33,7 @@ const panelDefaults = {
     { from: 'null', to: 'null', text: 'N/A' }
   ],
   mappingType: 1,
+  nullFiller: 0,
   nullPointMode: 'connected',
   valueName: 'avg',
   prefixFontSize: '50%',
@@ -67,7 +72,6 @@ export class CalcStatCtrl extends MetricsPanelCtrl {
     this.invalidGaugeRange = true;
     this.valueNameOptions = ['min','max','avg', 'current', 'total', 'name', 'first', 'delta', 'diff', 'range'];
 
-
     _.defaults(this.panel, panelDefaults);
 
     this.events.on('data-received', this.onDataReceived.bind(this));
@@ -75,8 +79,40 @@ export class CalcStatCtrl extends MetricsPanelCtrl {
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
   }
-  
+
   onDataReceived(dataList) {
+    let from = this.range.from.format("x");
+    let to = this.range.to.format("x");
+
+    for (let i=0; i < dataList.length; i++) {
+      let interval = kbn.interval_to_seconds(this.panel.targets[0].period) * 1000;
+      if (dataList[i].datapoints.length != 0) {
+        let firstPoint = dataList[i].datapoints[0];
+        let lastPoint = dataList[i].datapoints[dataList[i].datapoints.length - 1];
+        let lookup = dataList[i].datapoints.reduce(function(map, point) {
+          map[point[1]] = point[0];
+          return map;
+        }, {});
+
+        let datapoints = [];
+        // work on before first point
+        for (let timestamp = firstPoint[1] - interval; timestamp > from - interval; timestamp -= interval) {
+          datapoints.unshift([this.panel.nullFiller, timestamp]);
+        }
+
+        // work on filling in the gaps
+        for (let timestamp = firstPoint[1]; timestamp <= to - interval; timestamp += interval) {
+          if (lookup[timestamp] != null) {
+            datapoints.push([lookup[timestamp], timestamp]);
+          }
+          else {
+            datapoints.push([this.panel.nullFiller, timestamp]);
+          }
+        }
+        dataList[i].datapoints = datapoints;
+      }
+    }
+
     var data= {};
     if (dataList.length > 0 && dataList[0].type === 'table'){
       this.dataType = 'table';
@@ -262,8 +298,9 @@ setTableColumnToSensibleDefault(tableData) {
   
     this.setValueMapping(data);
   }
- 
+
   calculatedFlotPairs(formula, flotPairs) {
+
     let longestMetricsLength = this.series[0].flotpairs.length;
     let longestMetricIndex = 0;
     for(let i=1; i < this.series.length; i++) {
