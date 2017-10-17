@@ -2,16 +2,17 @@
   "type": "panel",
   "name": "CalcStat",
   "id": "calcstat",
-
   "info": {
     "author": {
       "name": "Silver Lu",
       "url": "https://github.com/silver-lu"
-},
+    },
     "logos": {
       "small": "img/icn-calcstat-panel.svg",
       "large": "img/icn-calcstat-panel.svg"
-    }
+    },
+    "version": "1.0.2",
+    "updated": "2017-10-17"
   }
 }
 
