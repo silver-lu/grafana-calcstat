@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery.flot', 'jquery.flot.gauge', 'jquery', 'lodash', 'angular', 'app/core/utils/kbn', 'app/core/time_series2', 'app/core/config'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery.flot', './modules/jquery.flot.gauge', 'jquery', 'lodash', 'angular', 'app/core/utils/kbn', 'app/core/time_series2', 'app/core/config'], function (_export, _context) {
   "use strict";
 
   var MetricsPanelCtrl, $, _, angular, kbn, TimeSeries, config, _createClass, panelDefaults, CalcStatCtrl;
@@ -62,7 +62,7 @@ System.register(['app/plugins/sdk', 'jquery.flot', 'jquery.flot.gauge', 'jquery'
   return {
     setters: [function (_appPluginsSdk) {
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
-    }, function (_jqueryFlot) {}, function (_jqueryFlotGauge) {}, function (_jquery) {
+    }, function (_jqueryFlot) {}, function (_modulesJqueryFlotGauge) {}, function (_jquery) {
       $ = _jquery.default;
     }, function (_lodash) {
       _ = _lodash.default;

@@ -2,6 +2,7 @@ module.exports = (grunt) => {
   require('load-grunt-tasks')(grunt);
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks('grunt-execute');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
 
   grunt.initConfig({
@@ -13,6 +14,17 @@ module.exports = (grunt) => {
     },
 
     clean: ['dist'],
+    
+    uglify: {
+      modules: {
+        files: [{
+          expand: true,
+          cwd: 'src/modules',
+          src: '**/*.js',
+          dest: 'dist/calcstat/modules'
+        }]
+      }
+    },
 
     copy: {
       src_to_dist: {
@@ -22,10 +34,10 @@ module.exports = (grunt) => {
         dest: 'dist/calcstat'
       },
       external_to_dist: {
-        cwd: 'src/vendor',
+        cwd: 'src/modules',
         expand: true,
         src: ['**/*.js'],
-        dest: 'dist/calcstat/vendor'
+        dest: 'dist/calcstat/modules'
       },
       pluginDef: {
         expand: true,
@@ -66,13 +78,14 @@ module.exports = (grunt) => {
           expand: true,
           src: ['*.js'],
           dest: 'dist/calcstat',
-          ext: '.js'
+          ext: '.js',
+          extDot: 'last'
         }]
       },
     },
 
   });
 
-  grunt.registerTask('default', ['clean', 'copy:pluginDef', 'copy:tpl_to_dist', 'copy:img_to_dist', 'babel']);
+  grunt.registerTask('default', ['clean', 'copy:pluginDef', 'copy:tpl_to_dist', 'copy:img_to_dist', 'uglify:modules', 'babel']);
 };
 

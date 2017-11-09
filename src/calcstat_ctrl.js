@@ -1,6 +1,6 @@
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 import 'jquery.flot';
-import 'jquery.flot.gauge';
+import './modules/jquery.flot.gauge';
 
 import $ from 'jquery';
 import _ from 'lodash';
