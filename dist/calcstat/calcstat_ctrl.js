@@ -190,6 +190,8 @@ System.register(['app/plugins/sdk', 'jquery.flot', './modules/jquery.flot.gauge'
                   }
                 }
                 dataList[i].datapoints = datapoints;
+              } else {
+                dataList[i].datapoints = [];
               }
             }
 

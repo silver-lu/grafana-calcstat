@@ -111,6 +111,9 @@ export class CalcStatCtrl extends MetricsPanelCtrl {
         }
         dataList[i].datapoints = datapoints;
       }
+      else {
+        dataList[i].datapoints = [];
+      }
     }
 
     var data= {};
