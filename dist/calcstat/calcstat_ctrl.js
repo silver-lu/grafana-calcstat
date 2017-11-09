@@ -167,7 +167,7 @@ System.register(['app/plugins/sdk', 'jquery.flot', './modules/jquery.flot.gauge'
 
             for (var i = 0; i < dataList.length; i++) {
               var interval = kbn.interval_to_seconds(this.panel.targets[0].period) * 1000;
-              if (dataList[i].datapoints.length != 0) {
+              if (dataList[i].datapoints && dataList[i].datapoints.length != 0) {
                 var firstPoint = dataList[i].datapoints[0];
                 var lastPoint = dataList[i].datapoints[dataList[i].datapoints.length - 1];
                 var lookup = dataList[i].datapoints.reduce(function (map, point) {

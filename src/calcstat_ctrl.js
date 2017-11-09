@@ -86,7 +86,7 @@ export class CalcStatCtrl extends MetricsPanelCtrl {
 
     for (let i=0; i < dataList.length; i++) {
       let interval = kbn.interval_to_seconds(this.panel.targets[0].period) * 1000;
-      if (dataList[i].datapoints.length != 0) {
+      if (dataList[i].datapoints && dataList[i].datapoints.length != 0) {
         let firstPoint = dataList[i].datapoints[0];
         let lastPoint = dataList[i].datapoints[dataList[i].datapoints.length - 1];
         let lookup = dataList[i].datapoints.reduce(function(map, point) {
